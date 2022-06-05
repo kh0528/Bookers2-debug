@@ -10,20 +10,54 @@
   		<h2>Book detail</h2>
   		<table class='table'>
   		  <tr>
-           <td>
-             <%= link_to user_path(@user.id) do %>
-              <%= image_tag @user.get_profile_image(100,100) %>
-             <% end %><br>
-             <%= link_to @user.name,user_path(@user.id) %>
-            </td>
-            <td><%= link_to @books.title,book_path(@books.id) %></td>
-            <td><%= @books.body %></td>
-             <% if @books.user == current_user %>
-              <td><%= link_to "Edit",edit_book_path(@books), class: "btn btn-sm btn-success" %></td>
-              <td><%= link_to "Destroy",book_path(@books),method: :delete, class: "btn btn-sm btn-danger"  %></td>
-             <% end %>
-        </tr>
-      </table>
+        <td>
+         <%= link_to user_path(@user.id) do %>
+          <%= image_tag @user.get_profile_image(70,70) %>
+         <% end %><br>
+         <%= link_to @user.name,user_path(@user.id) %>
+        </td>
+        <td><%= link_to @books.title,book_path(@books.id) %></td>
+        <td><%= @books.body %></td>
+       <% if @books.user == current_user %>
+        <td><%= link_to "Edit",edit_book_path(@books), class: "btn btn-sm btn-success" %></td>
+        <td><%= link_to "Destroy",book_path(@books),method: :delete, class: "btn btn-sm btn-danger"  %></td>
+       <% end %>
+       <% if @books.favorited_by?(current_user) %>
+        <td>
+         <%= link_to book_favorites_path(@books), method: :delete do %>
+          ♥<%= @books.favorites.count %>
+         <% end %>
+        </td>
+       <% else %>
+        <td>
+         <%= link_to book_favorites_path(@books), method: :post do %>
+          ♡<%= @books.favorites.count %>
+         <% end %>
+        </td>
+       <% end %>
+        <td>コメント数：<%= @books.post_comments.count %></td>
+      </tr>
+    </table>
+    <table class='table'>
+     <% @books.post_comments.each do |post_comment| %>
+      <tr>
+       <td>
+       <%= link_to user_path(post_comment.user.id) do %>
+        <%= image_tag post_comment.user.get_profile_image(70,70) %>
+       <% end %><br>
+       <%= link_to post_comment.user.name,user_path(post_comment.user.id) %>
+       </td>
+       <td><%= post_comment.comment %></td>
+        <% if post_comment.user == current_user %>
+         <td><%= link_to "Destroy", book_post_comment_path(post_comment.book, post_comment), method: :delete, class: "btn btn-sm btn-danger" %></td>
+        <% end %>
+      </tr>
+     <% end %>
+    </table>
+     <%= form_with model:[@books, @post_comment] do |f| %>
+       <%= f.text_area :comment %><br>
+       <%= f.submit "送信" %>
+     <% end %>
     </div>
   </div>
 </div>
